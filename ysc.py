@@ -5,6 +5,8 @@ import sys
 import idaapi
 from idaapi import *
 import ida_pro
+import ida_bytes
+import idc
 import ctypes
 
 if sys.version_info.major < 3:
@@ -178,7 +180,7 @@ class ysc_t(idaapi.processor_t):
         {'name': 'GLOBAL_U24_LOAD', 'feature': 0},
         {'name': 'GLOBAL_U24_STORE', 'feature': 0},
         {'name': 'PUSH_CONST_U24', 'feature': 0},
-        {'name': 'SWITCH', 'feature': 0},
+        {'name': 'SWITCH', 'feature': CF_JUMP},
         {'name': 'STRING', 'feature': 0},
         {'name': 'STRINGHASH', 'feature': 0},
         {'name': 'TEXT_LABEL_ASSIGN_STRING', 'feature': 0},
@@ -1057,7 +1059,30 @@ class ysc_t(idaapi.processor_t):
         Find 'switch' idiom at instruction 'insn'.
         Fills 'swi' structure with information
         """
-        return 0
+        if insn.itype != 101:
+            return 0
+        swi.flags = SWI_CUSTOM
+        swi.startea = insn.ea
+        return 1
+
+    def ev_create_switch_xrefs(self, jumpea, swi):
+        """Create xrefs for a custom jump table
+           @param jumpea: address of the jump insn
+           @param swi: switch information
+        """
+        switch_instr = jumpea
+        jumpea += 1
+        branches = ida_bytes.get_byte(jumpea)
+        print("{:x} {}".format(jumpea - 1, branches))
+        jumpea += 1
+        for i in range(0, branches):
+            match = ida_bytes.get_dword(jumpea)
+            jumpea += 4
+            target = ida_bytes.get_word(jumpea)
+            jumpea += 2
+            add_cref(switch_instr, jumpea + target, fl_JF)
+            idc.set_cmt(jumpea + target, "case {} (SWITCH @0x{:x})".format(match, switch_instr), 1)
+        return 1
 
     def ev_is_sp_based(self, mode, insn, op):
         """
@@ -1082,13 +1107,6 @@ class ysc_t(idaapi.processor_t):
         @return: None or the comment string
         """
         return "comment for %d" % insn.itype
-
-    def ev_create_switch_xrefs(self, jumpea, swi):
-        """Create xrefs for a custom jump table
-           @param jumpea: address of the jump insn
-           @param swi: switch information
-        """
-        return 0
 
     def ev_calc_step_over(self, target, ip):
         ida_pro.ea_pointer.frompointer(target).assign(idaapi.BADADDR)

@@ -97,10 +97,8 @@ def load_file(f, neflags, format):
     
     page_count = int(header.opcode_size / PAGE_SIZE) + 1
     offset = 0
+    f.seek(header.table)
     for i in range(0, page_count):
-      f.seek(header.table)
-      f.read(i * 8)
-      #f.seek(int.from_bytes(f.read(8), 'little') & 0xFFFFFF)
       page_size = get_page_size(i, page_count, header.opcode_size)
       f.file2base(int.from_bytes(f.read(8), 'little') & 0xFFFFFF, offset, offset+page_size, 0)
       offset += page_size
