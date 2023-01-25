@@ -1,10 +1,10 @@
 # ysc-ida
-![alt text](preview.png)
 Loader/Processor to dissassemble YSC scripts in IDA 7/8
+![alt text](preview.png)
 ## Usage
-Put ysc.py into <IDA_DIR>/procs/
-Put ysc_loader.py into <IDA_DIR>/loaders/
-Export a ysc.full file using a tool such as OpenIV, and import it into IDA. Select YSC Loader from the list.
+1. Put ysc.py into <IDA_DIR>/procs/
+2. Put ysc_loader.py into <IDA_DIR>/loaders/
+3. Export a ysc.full file using a tool such as OpenIV, and import it into IDA. Select YSC Loader from the list.
 ## Requirements
-Python 3.x
-IDA 7/8 (tested on 8.2)
+- Python 3.x
+- IDA 7/8 (tested on 8.2)
