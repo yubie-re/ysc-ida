@@ -11,7 +11,142 @@ import idautils
 import ctypes
 
 if sys.version_info.major < 3:
-  range = xrange
+  print("Needs python3!")
+
+
+# Opcodes
+OP_NOP = 0
+OP_IADD = 1
+OP_ISUB = 2
+OP_IMUL = 3
+OP_IDIV = 4
+OP_IMOD = 5
+OP_INOT = 6
+OP_INEG = 7
+OP_IEQ = 8
+OP_INE = 9
+OP_IGT = 10
+OP_IGE = 11
+OP_ILT = 12
+OP_ILE = 13
+OP_FADD = 14
+OP_FSUB = 15
+OP_FMUL = 16
+OP_FDIV = 17
+OP_FMOD = 18
+OP_FNEG = 19
+OP_FEQ = 20
+OP_FNE = 21
+OP_FGT = 22
+OP_FGE = 23
+OP_FLT = 24
+OP_FLE = 25
+OP_VADD = 26
+OP_VSUB = 27
+OP_VMUL = 28
+OP_VDIV = 29
+OP_VNEG = 30
+OP_IAND = 31
+OP_IOR = 32
+OP_IXOR = 33
+OP_I2F = 34
+OP_F2I = 35
+OP_F2V = 36
+OP_PUSH_CONST_U8 = 37
+OP_PUSH_CONST_U8_U8 = 38
+OP_PUSH_CONST_U8_U8_U8 = 39
+OP_PUSH_CONST_U32 = 40
+OP_PUSH_CONST_F = 41
+OP_DUP = 42
+OP_DROP = 43
+OP_NATIVE = 44
+OP_ENTER = 45
+OP_LEAVE = 46
+OP_LOAD = 47
+OP_STORE = 48
+OP_STORE_REV = 49
+OP_LOAD_N = 50
+OP_STORE_N = 51
+OP_ARRAY_U8 = 52
+OP_ARRAY_U8_LOAD = 53
+OP_ARRAY_U8_STORE = 54
+OP_LOCAL_U8 = 55
+OP_LOCAL_U8_LOAD = 56
+OP_LOCAL_U8_STORE = 57
+OP_STATIC_U8 = 58
+OP_STATIC_U8_LOAD = 59
+OP_STATIC_U8_STORE = 60
+OP_IADD_U8 = 61
+OP_IMUL_U8 = 62
+OP_IOFFSET = 63
+OP_IOFFSET_U8 = 64
+OP_IOFFSET_U8_LOAD = 65
+OP_IOFFSET_U8_STORE = 66
+OP_PUSH_CONST_S16 = 67
+OP_IADD_S16 = 68
+OP_IMUL_S16 = 69
+OP_IOFFSET_S16 = 70
+OP_IOFFSET_S16_LOAD = 71
+OP_IOFFSET_S16_STORE = 72
+OP_ARRAY_U16 = 73
+OP_ARRAY_U16_LOAD = 74
+OP_ARRAY_U16_STORE = 75
+OP_LOCAL_U16 = 76
+OP_LOCAL_U16_LOAD = 77
+OP_LOCAL_U16_STORE = 78
+OP_STATIC_U16 = 79
+OP_STATIC_U16_LOAD = 80
+OP_STATIC_U16_STORE = 81
+OP_GLOBAL_U16 = 82
+OP_GLOBAL_U16_LOAD = 83
+OP_GLOBAL_U16_STORE = 84
+OP_J = 85
+OP_JZ = 86
+OP_IEQ_JZ = 87
+OP_INE_JZ = 88
+OP_IGT_JZ = 89
+OP_IGE_JZ = 90
+OP_ILT_JZ = 91
+OP_ILE_JZ = 92
+OP_CALL = 93
+OP_STATIC_U24 = 94
+OP_STATIC_U24_LOAD = 95
+OP_STATIC_U24_STORE = 96
+OP_GLOBAL_U24 = 97
+OP_GLOBAL_U24_LOAD = 98
+OP_GLOBAL_U24_STORE = 99
+OP_PUSH_CONST_U24 = 100
+OP_SWITCH = 101
+OP_STRING = 102
+OP_STRINGHASH = 103
+OP_TEXT_LABEL_ASSIGN_STRING = 104
+OP_TEXT_LABEL_ASSIGN_INT = 105
+OP_TEXT_LABEL_APPEND_STRING = 106
+OP_TEXT_LABEL_APPEND_INT = 107
+OP_TEXT_LABEL_COPY = 108
+OP_CATCH = 109
+OP_THROW = 110
+OP_CALLINDIRECT = 111
+OP_PUSH_CONST_M1 = 112
+OP_PUSH_CONST_0 = 113
+OP_PUSH_CONST_1 = 114
+OP_PUSH_CONST_2 = 115
+OP_PUSH_CONST_3 = 116
+OP_PUSH_CONST_4 = 117
+OP_PUSH_CONST_5 = 118
+OP_PUSH_CONST_6 = 119
+OP_PUSH_CONST_7 = 120
+OP_PUSH_CONST_FM1 = 121
+OP_PUSH_CONST_F0 = 122
+OP_PUSH_CONST_F1 = 123
+OP_PUSH_CONST_F2 = 124
+OP_PUSH_CONST_F3 = 125
+OP_PUSH_CONST_F4 = 126
+OP_PUSH_CONST_F5 = 127
+OP_PUSH_CONST_F6 = 128
+OP_PUSH_CONST_F7 = 129
+OP_IS_BIT_SET = 130
+
 
 # ----------------------------------------------------------------------
 class ysc_t(idaapi.processor_t):
@@ -26,7 +161,7 @@ class ysc_t(idaapi.processor_t):
     """
 
     # IDP id ( Numbers above 0x8000 are reserved for the third-party modules)
-    id = 0x8000 + 1
+    id = 0x8000 + 2704
 
     # Processor features
     flag = PR_ASSEMBLE | PR_SEGS | PR_DEFSEG32 | PR_USE32 | PRN_HEX | PR_RNAMESOK
@@ -45,7 +180,7 @@ class ysc_t(idaapi.processor_t):
 
     # long processor names
     # No restriction on name lengthes.
-    plnames = ['RAGE Script Format']
+    plnames = ['RAGE Script Compiler']
 
     # register names
     reg_names = [
@@ -74,10 +209,10 @@ class ysc_t(idaapi.processor_t):
     reg_data_sreg = 2
 
     # Array of typical code start sequences (optional)
-    codestart = ["\x2D"]
+    codestart = [bytearray([OP_ENTER])]
 
     # Array of 'return' instruction opcodes (optional)
-    retcodes = ["\x2E"]
+    retcodes = [bytearray([OP_LEAVE])]
 
     instruc = [
         {'name': 'NOP', 'feature': 0},
@@ -238,7 +373,7 @@ class ysc_t(idaapi.processor_t):
 
     # icode (or instruction number) of return instruction. It is ok to give any of possible return
     # instructions
-    icode_return = 46
+    icode_return = OP_LEAVE
 
     # only one assembler is supported
     assembler = {
@@ -249,7 +384,7 @@ class ysc_t(idaapi.processor_t):
         'uflag' : 0,
 
         # Assembler name (displayed in menus)
-        'name': "My processor module bytecode assembler",
+        'name': "YSC",
 
         # array of automatically generated header lines they appear at the start of disassembled text (optional)
         'header': ["Line1", "Line2"],
@@ -401,12 +536,6 @@ class ysc_t(idaapi.processor_t):
         'a_rva': "rva"
     } # Assembler
 
-    def regname2index(self, regname):
-        for idx in range(len(self.reg_names)):
-            if regname == self.reg_names[idx]:
-                return idx
-        return -1
-
 
     OPTION_KEY_OPERAND_SEPARATOR = "PROCTEMPLATE_OPERAND_SEPARATOR"
     OPTION_KEY_OPERAND_SPACES = "PROCTEMPLATE_OPERAND_SPACES"
@@ -417,26 +546,6 @@ class ysc_t(idaapi.processor_t):
       idaapi.processor_t.__init__(self)
       self.operand_separator = ','
       self.operand_spaces = 1
-
-    def asm_out_func_header(self, ctx, func_ea):
-        """generate function header lines"""
-        pass
-
-    def asm_out_func_footer(self, ctx, func_ea):
-        """generate function footer lines"""
-        pass
-
-    def asm_get_type_name(self, flag, ea_or_id):
-        """
-        Get name of type of item at ea or id.
-        (i.e. one of: byte,word,dword,near,far,etc...)
-        """
-        #if is_code(flag):
-        #    pfn = get_func(ea_or_id)
-        #    # return get func name
-        #elif is_word(flag):
-        #    return "word"
-        return ""
 
     #
     # IDP_Hooks callbacks (the first 4 are mandatory)
@@ -507,21 +616,18 @@ class ysc_t(idaapi.processor_t):
         Returns: insn.size (=the size of the decoded instruction) or zero
         """
         insn.itype = insn.get_next_byte()
-        if insn.itype == 37: #OP_PUSH_CONST_U8
-            # insn.size = 2
+        if insn.itype == OP_PUSH_CONST_U8:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
-        if insn.itype == 38: #OP_PUSH_CONST_U8_U8
-            # insn.size = 3
+        elif insn.itype == OP_PUSH_CONST_U8_U8:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
             insn.Op2.type = o_imm
             insn.Op2.dtype = dt_byte
             insn.Op2.value = insn.get_next_byte()
-        if insn.itype == 39: #OP_PUSH_CONST_U8_U8_U8
-            # insn.size = 4
+        elif insn.itype == OP_PUSH_CONST_U8_U8_U8:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
@@ -531,18 +637,15 @@ class ysc_t(idaapi.processor_t):
             insn.Op3.type = o_imm
             insn.Op3.dtype = dt_byte
             insn.Op3.value = insn.get_next_byte()
-        if insn.itype == 40: #OP_PUSH_CONST_U32
-            # insn.size = 5
+        elif insn.itype == OP_PUSH_CONST_U32:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_dword
             insn.Op1.value = insn.get_next_dword()
-        if insn.itype == 41: #OP_PUSH_CONST_F
-            # insn.size = 5
+        elif insn.itype == OP_PUSH_CONST_F:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_float
             insn.Op1.value = insn.get_next_dword()
-        if insn.itype == 44: #OP_NATIVE
-            # insn.size = 4
+        elif insn.itype == OP_NATIVE:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
@@ -551,11 +654,8 @@ class ysc_t(idaapi.processor_t):
             for s in idautils.Segments():
                 if idc.get_segm_name(s) == "NATIVES":
                     native_segment = idc.get_segm_start(s)
-            imm = insn.get_next_byte() << 8
-            imm |= insn.get_next_byte()
-            insn.Op2.addr = native_segment + imm * 8
-        if insn.itype == 45: #OP_ENTER
-            # insn.size = 5
+            insn.Op2.addr = native_segment + ((insn.get_next_byte() << 8) | insn.get_next_byte()) * 8
+        elif insn.itype == OP_ENTER:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
@@ -565,289 +665,236 @@ class ysc_t(idaapi.processor_t):
             insn.Op3.type = o_imm
             insn.Op3.dtype = dt_byte
             insn.Op3.value = insn.get_next_byte()
-        if insn.itype == 46: #OP_LEAVE
-            # insn.size = 3
+        elif insn.itype == OP_LEAVE:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
             insn.Op2.type = o_imm
             insn.Op2.dtype = dt_byte
             insn.Op2.value = insn.get_next_byte()
-        if insn.itype == 52: #OP_ARRAY_U8
-            # insn.size = 2
+        elif insn.itype == OP_ARRAY_U8:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
-        if insn.itype == 53: #OP_ARRAY_U8_LOAD
-            # insn.size = 2
+        elif insn.itype == OP_ARRAY_U8_LOAD:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
-        if insn.itype == 54: #OP_ARRAY_U8_STORE
-            # insn.size = 2
+        elif insn.itype == OP_ARRAY_U8_STORE:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
-        if insn.itype == 55: #OP_LOCAL_U8
-            # insn.size = 2
+        elif insn.itype == OP_LOCAL_U8:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
-        if insn.itype == 56: #OP_LOCAL_U8_LOAD
-            # insn.size = 2
+        elif insn.itype == OP_LOCAL_U8_LOAD:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
-        if insn.itype == 57: #OP_LOCAL_U8_STORE
-            # insn.size = 2
+        elif insn.itype == OP_LOCAL_U8_STORE:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
-        if insn.itype == 58: #OP_STATIC_U8
-            # insn.size = 2
+        elif insn.itype == OP_STATIC_U8:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
-        if insn.itype == 59: #OP_STATIC_U8_LOAD
-            # insn.size = 2
+        elif insn.itype == OP_STATIC_U8_LOAD:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
-        if insn.itype == 60: #OP_STATIC_U8_STORE
-            # insn.size = 2
+        elif insn.itype == OP_STATIC_U8_STORE:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
-        if insn.itype == 61: #OP_IADD_U8
-            # insn.size = 2
+        elif insn.itype == OP_IADD_U8:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
-        if insn.itype == 62: #OP_IMUL_U8
-            # insn.size = 2
+        elif insn.itype == OP_IMUL_U8:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
-        if insn.itype == 64: #OP_IOFFSET_U8
-            # insn.size = 2
+        elif insn.itype == OP_IOFFSET_U8:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
-        if insn.itype == 65: #OP_IOFFSET_U8_LOAD
-            # insn.size = 2
+        elif insn.itype == OP_IOFFSET_U8_LOAD:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
-        if insn.itype == 66: #OP_IOFFSET_U8_STORE
-            # insn.size = 2
+        elif insn.itype == OP_IOFFSET_U8_STORE:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
-        if insn.itype == 67: #OP_PUSH_CONST_S16
-            # insn.size = 3
+        elif insn.itype == OP_PUSH_CONST_S16:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_word
             insn.Op1.value = insn.get_next_word()
-        if insn.itype == 68: #OP_IADD_S16
-            # insn.size = 3
+        elif insn.itype == OP_IADD_S16:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_word
             insn.Op1.value = insn.get_next_word()
-        if insn.itype == 69: #OP_IMUL_S16
-            # insn.size = 3
+        elif insn.itype == OP_IMUL_S16:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_word
             insn.Op1.value = insn.get_next_word()
-        if insn.itype == 70: #OP_IOFFSET_S16
-            # insn.size = 3
+        elif insn.itype == OP_IOFFSET_S16:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_word
             insn.Op1.value = insn.get_next_word()
-        if insn.itype == 71: #OP_IOFFSET_S16_LOAD
-            # insn.size = 3
+        elif insn.itype == OP_IOFFSET_S16_LOAD:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_word
             insn.Op1.value = insn.get_next_word()
-        if insn.itype == 72: #OP_IOFFSET_S16_STORE
-            # insn.size = 3
+        elif insn.itype == OP_IOFFSET_S16_STORE:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_word
             insn.Op1.value = insn.get_next_word()
-        if insn.itype == 73: #OP_ARRAY_U16
-            # insn.size = 3
+        elif insn.itype == OP_ARRAY_U16:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_word
             insn.Op1.value = insn.get_next_word()
-        if insn.itype == 74: #OP_ARRAY_U16_LOAD
-            # insn.size = 3
+        elif insn.itype == OP_ARRAY_U16_LOAD:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_word
             insn.Op1.value = insn.get_next_word()
-        if insn.itype == 75: #OP_ARRAY_U16_STORE
-            # insn.size = 3
+        elif insn.itype == OP_ARRAY_U16_STORE:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_word
             insn.Op1.value = insn.get_next_word()
-        if insn.itype == 76: #OP_LOCAL_U16
-            # insn.size = 3
+        elif insn.itype == OP_LOCAL_U16:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_word
             insn.Op1.value = insn.get_next_word()
-        if insn.itype == 77: #OP_LOCAL_U16_LOAD
-            # insn.size = 3
+        elif insn.itype == OP_LOCAL_U16_LOAD:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_word
             insn.Op1.value = insn.get_next_word()
-        if insn.itype == 78: #OP_LOCAL_U16_STORE
-            # insn.size = 3
+        elif insn.itype == OP_LOCAL_U16_STORE:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_word
             insn.Op1.value = insn.get_next_word()
-        if insn.itype == 79: #OP_STATIC_U16
-            # insn.size = 3
+        elif insn.itype == OP_STATIC_U16:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_word
             insn.Op1.value = insn.get_next_word()
-        if insn.itype == 80: #OP_STATIC_U16_LOAD
-            # insn.size = 3
+        elif insn.itype == OP_STATIC_U16_LOAD:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_word
             insn.Op1.value = insn.get_next_word()
-        if insn.itype == 81: #OP_STATIC_U16_STORE
-            # insn.size = 3
+        elif insn.itype == OP_STATIC_U16_STORE:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_word
             insn.Op1.value = insn.get_next_word()
-        if insn.itype == 82: #OP_GLOBAL_U16
-            # insn.size = 3
+        elif insn.itype == OP_GLOBAL_U16:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_word
             insn.Op1.value = insn.get_next_word()
-        if insn.itype == 83: #OP_GLOBAL_U16_LOAD
-            # insn.size = 3
+        elif insn.itype == OP_GLOBAL_U16_LOAD:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_word
             insn.Op1.value = insn.get_next_word()
-        if insn.itype == 84: #OP_GLOBAL_U16_STORE
-            # insn.size = 3
+        elif insn.itype == OP_GLOBAL_U16_STORE:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_word
             insn.Op1.value = insn.get_next_word()
-        if insn.itype == 85: #OP_J
-            # insn.size = 3
-            
+        elif insn.itype == OP_J:
             insn.Op1.type = o_displ
             insn.Op1.dtype = dt_word
             insn.Op1.value = insn.get_next_word()
-        if insn.itype == 86: #OP_JZ
-            # insn.size = 3
+        elif insn.itype == OP_JZ:
             insn.Op1.type = o_displ
             insn.Op1.dtype = dt_word
             insn.Op1.value = insn.get_next_word()
-        if insn.itype == 87: #OP_IEQ_JZ
-            # insn.size = 3
+        elif insn.itype == OP_IEQ_JZ:
             insn.Op1.type = o_displ
             insn.Op1.dtype = dt_word
             insn.Op1.value = insn.get_next_word()
-        if insn.itype == 88: #OP_INE_JZ
-            # insn.size = 3
+        elif insn.itype == OP_INE_JZ:
             insn.Op1.type = o_displ
             insn.Op1.dtype = dt_word
             insn.Op1.value = insn.get_next_word()
-        if insn.itype == 89: #OP_IGT_JZ
-            # insn.size = 3
+        elif insn.itype == OP_IGT_JZ:
             insn.Op1.type = o_displ
             insn.Op1.dtype = dt_word
             insn.Op1.value = insn.get_next_word()
-        if insn.itype == 90: #OP_IGE_JZ
-            # insn.size = 3
+        elif insn.itype == OP_IGE_JZ:
             insn.Op1.type = o_displ
             insn.Op1.dtype = dt_word
             insn.Op1.value = insn.get_next_word()
-        if insn.itype == 91: #OP_ILT_JZ
-            # insn.size = 3
+        elif insn.itype == OP_ILT_JZ:
             insn.Op1.type = o_displ
             insn.Op1.dtype = dt_word
             insn.Op1.value = insn.get_next_word()
-        if insn.itype == 92: #OP_ILE_JZ
-            # insn.size = 3
+        elif insn.itype == OP_ILE_JZ:
             insn.Op1.type = o_displ
             insn.Op1.dtype = dt_word
             insn.Op1.value = insn.get_next_word()
-        if insn.itype == 93: #OP_CALL
-            # insn.size = 4
+        elif insn.itype == OP_CALL:
             insn.Op1.type = o_mem
             insn.Op1.dtype = dt_dword
             insn.Op1.addr = (insn.get_next_dword()) & 0xFFFFFF
             insn.size = 4
-        if insn.itype == 94: #OP_STATIC_U24
+        elif insn.itype == OP_STATIC_U24:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_dword
             insn.Op1.value = (insn.get_next_dword()) & 0xFFFFFF
             insn.size = 4
-        if insn.itype == 95: #OP_STATIC_U24_LOAD
+        elif insn.itype == OP_STATIC_U24_LOAD:
             # 
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_dword
             insn.Op1.value = (insn.get_next_dword()) & 0xFFFFFF
             insn.size = 4
-        if insn.itype == 96: #OP_STATIC_U24_STORE
-            # insn.size = 4
+        elif insn.itype == OP_STATIC_U24_STORE:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_dword
             insn.Op1.value = (insn.get_next_dword()) & 0xFFFFFF
             insn.size = 4
-        if insn.itype == 97: #OP_GLOBAL_U24
-            # insn.size = 4
+        elif insn.itype == OP_GLOBAL_U24:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_dword
             insn.Op1.value = (insn.get_next_dword()) & 0xFFFFFF
             insn.size = 4
-        if insn.itype == 98: #OP_GLOBAL_U24_LOAD
-            # insn.size = 4
+        elif insn.itype == OP_GLOBAL_U24_LOAD:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_dword
             insn.Op1.value = (insn.get_next_dword()) & 0xFFFFFF
             insn.size = 4
-        if insn.itype == 99: #OP_GLOBAL_U24_STORE
-            # insn.size = 4
+        elif insn.itype == OP_GLOBAL_U24_STORE:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_dword
             insn.Op1.value = (insn.get_next_dword()) & 0xFFFFFF
             insn.size = 4
-        if insn.itype == 100: #OP_PUSH_CONST_U24
-            # insn.size = 4
+        elif insn.itype == OP_PUSH_CONST_U24:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_dword
             insn.Op1.value = (insn.get_next_dword()) & 0xFFFFFF
             insn.size = 4
-        if insn.itype == 101: #OP_SWITCH
+        elif insn.itype == OP_SWITCH:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
-            #TODO: Switch
             insn.size = 2 + insn.Op1.value * 6
-        if insn.itype == 104: #OP_TEXT_LABEL_ASSIGN_STRING
-            # insn.size = 1
+        elif insn.itype == OP_TEXT_LABEL_ASSIGN_STRING:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
-        if insn.itype == 105: #OP_TEXT_LABEL_ASSIGN_INT
-            # insn.size = 1
+        elif insn.itype == OP_TEXT_LABEL_ASSIGN_INT:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
-        if insn.itype == 106: #OP_TEXT_LABEL_APPEND_STRING
-            # insn.size = 1
+        elif insn.itype == OP_TEXT_LABEL_APPEND_STRING:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
-        if insn.itype == 107: #OP_TEXT_LABEL_APPEND_INT
-            # insn.size = 1
+        elif insn.itype == OP_TEXT_LABEL_APPEND_INT:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
-        if insn.itype == 102: # OP_STRING
+        elif insn.itype == OP_STRING:
             prev = insn_t()
             decode_prev_insn(prev, insn.ea)
             if prev.Op1.type == o_imm:
@@ -859,91 +906,91 @@ class ysc_t(idaapi.processor_t):
                 
                 insn.Op1.addr = string_segment + prev.Op1.value
                 idc.SetType(insn.Op1.addr, "char[]") # so all strings are recognized
-        if insn.itype == 112: # OP_PUSH_CONST_M1
+        elif insn.itype == OP_PUSH_CONST_M1:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_dword
             insn.Op1.value = -1
-        if insn.itype == 113: # OP_PUSH_CONST_0
+        elif insn.itype == OP_PUSH_CONST_0:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_dword
             insn.Op1.value = 0
-        if insn.itype == 114: # OP_PUSH_CONST_1
+        elif insn.itype == OP_PUSH_CONST_1:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_dword
             insn.Op1.value = 1
-        if insn.itype == 115: # OP_PUSH_CONST_2
+        elif insn.itype == OP_PUSH_CONST_2:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_dword
             insn.Op1.value = 2
-        if insn.itype == 116: # OP_PUSH_CONST_3
+        elif insn.itype == OP_PUSH_CONST_3:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_dword
             insn.Op1.value = 3
-        if insn.itype == 117: # OP_PUSH_CONST_4
+        elif insn.itype == OP_PUSH_CONST_4:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_dword
             insn.Op1.value = 4
-        if insn.itype == 118: # OP_PUSH_CONST_5
+        elif insn.itype == OP_PUSH_CONST_5:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_dword
             insn.Op1.value = 5
-        if insn.itype == 119: # OP_PUSH_CONST_6
+        elif insn.itype == OP_PUSH_CONST_6:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_dword
             insn.Op1.value = 6
-        if insn.itype == 120: # OP_PUSH_CONST_7
+        elif insn.itype == OP_PUSH_CONST_7:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_dword
             insn.Op1.value = 7
-        if insn.itype == 121: # OP_PUSH_CONST_FM1
+        elif insn.itype == OP_PUSH_CONST_FM1:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_float
             insn.Op1.value = 0xbf800000
-        if insn.itype == 122: # OP_PUSH_CONST_F0
+        elif insn.itype == OP_PUSH_CONST_F0:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_float
             insn.Op1.value = 0x00000000
-        if insn.itype == 123: # OP_PUSH_CONST_F1
+        elif insn.itype == OP_PUSH_CONST_F1:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_float
             insn.Op1.value = 0x3f800000
-        if insn.itype == 124: # OP_PUSH_CONST_F2
+        elif insn.itype == OP_PUSH_CONST_F2:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_float
             insn.Op1.value = 0x40000000
-        if insn.itype == 125: # OP_PUSH_CONST_F3
+        elif insn.itype == OP_PUSH_CONST_F3:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_float
             insn.Op1.value = 0x40400000
-        if insn.itype == 126: # OP_PUSH_CONST_F4
+        elif insn.itype == OP_PUSH_CONST_F4:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_float
             insn.Op1.value = 0x40800000
-        if insn.itype == 127: # OP_PUSH_CONST_F5
+        elif insn.itype == OP_PUSH_CONST_F5:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_float
             insn.Op1.value = 0x40a00000
-        if insn.itype == 128: # OP_PUSH_CONST_F6
+        elif insn.itype == OP_PUSH_CONST_F6:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_float
             insn.Op1.value = 0x40c00000
-        if insn.itype == 129: # OP_PUSH_CONST_F7
+        elif insn.itype == OP_PUSH_CONST_F7:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_float
             insn.Op1.value = 0x40e00000
         return insn.size
 
     def ev_emu_insn(self, insn):
-        flow = (insn.get_canon_feature() & CF_STOP) == 0
-        if insn.itype >= 85 and insn.itype <= 92: # all jmp opcodes
+        flow = insn.itype != OP_LEAVE and insn.itype != OP_J
+        if insn.itype >= OP_J and insn.itype <= OP_ILE_JZ: # all jmp opcodes
             add_cref(insn.ea, insn.ea + insn.size + ctypes.c_short(insn.Op1.value).value, dr_O)
-        elif insn.itype == 93: # call
+        elif insn.itype == OP_CALL: # call
             add_cref(insn.ea, insn.Op1.addr, fl_CF)
-        elif insn.itype == 44:
+        elif insn.itype == OP_NATIVE:
             add_dref(insn.ea, insn.Op2.addr, dr_R)
-        elif insn.itype == 102:
+        elif insn.itype == OP_STRING:
             add_dref(insn.ea, insn.Op1.addr, dr_R)
-        if flow and insn.itype != 85: # ret
+        if flow: # ret
             add_cref(insn.ea, insn.ea + insn.size, fl_F)
 
         return True
@@ -951,209 +998,12 @@ class ysc_t(idaapi.processor_t):
     # The following callbacks are optional.
     # *** Please remove the callbacks that you don't plan to implement ***
 
-    def ev_out_header(self, ctx):
-        """function to produce start of disassembled text"""
-        return 0
-
-    def ev_out_footer(self, ctx):
-        """function to produce end of disassembled text"""
-        return 0
-
-    def ev_out_segstart(self, ctx, segment):
-        """function to produce start of segment"""
-        return 0
-
-    def ev_out_segend(self, ctx, segment):
-        """function to produce end of segment"""
-        return 0
-
-    def ev_out_assumes(self, ctx):
-        """function to produce assume directives"""
-        return 0
-
-    def ev_term(self):
-        """called when the processor module is unloading"""
-        return 0
-
-    def ev_setup_til(self):
-        """Setup default type libraries (called after loading a new file into the database)
-        The processor module may load tils, setup memory model and perform other actions required to set up the type system
-        """
-        return 0
-
-    def ev_newprc(self, nproc, keep_cfg):
-        """
-        Before changing proccesor type
-        nproc - processor number in the array of processor names
-        return >=0-ok,<0-prohibit
-        """
-        return 0
-
-    def ev_newfile(self, filename):
-        """A new file is loaded (already)"""
-        return 0
-
-    def ev_oldfile(self, filename):
-        """An old file is loaded (already)"""
-        return 0
-
-    def ev_newbinary(self, filename, fileoff, basepara, binoff, nbytes):
-        """
-        Before loading a binary file
-         args:
-          filename  - binary file name
-          fileoff   - offset in the file
-          basepara  - base loading paragraph
-          binoff    - loader offset
-          nbytes    - number of bytes to load
-        """
-        return 0
-
-    def ev_undefine(self, ea):
-        """
-        An item in the database (insn or data) is being deleted
-        @param args: ea
-        @return: >=0-ok, <0 - the kernel should stop
-                 if the return value is not negative:
-                     bit0 - ignored
-                     bit1 - do not delete srareas at the item end
-        """
-        return 0
-
-    def ev_endbinary(self, ok):
-        """
-         After loading a binary file
-         args:
-          ok - file loaded successfully?
-        """
-        return 0
-
-    def ev_assemble(self, ea, cs, ip, use32, line):
-        """
-        Assemble an instruction
-         (make sure that PR_ASSEMBLE flag is set in the processor flags)
-         (display a warning if an error occurs)
-         args:
-           ea -  linear address of instruction
-           cs -  cs of instruction
-           ip -  ip of instruction
-           use32 - is 32bit segment?
-           line - line to assemble
-        returns the opcode string, or None
-        """
-        return 0
-
-    def ev_out_data(self, ctx, analyze_only):
-        """
-        Generate text represenation of data items
-        This function MAY change the database and create cross-references, etc.
-        """
-        ctx.out_data(analyze_only)
-        return 1
-
-    def ev_cmp_operands(self, op1, op2):
-        """
-        Compare instruction operands.
-        Returns 1-equal, -1-not equal, 0-not implemented
-        """
-        return 0
-
-    def ev_can_have_type(self, op):
-        """
-        Can the operand have a type as offset, segment, decimal, etc.
-        (for example, a register AX can't have a type, meaning that the user can't
-        change its representation. see bytes.hpp for information about types and flags)
-        Returns: 0-unknown, <0-no, 1-yes
-        """
-        return 0
-
-    def ev_set_idp_options(self, keyword, value_type, value, idb_loaded):
-        """
-        Set IDP-specific option
-        args:
-          keyword    - the option name
-                       or empty string (check value_type when 0 below)
-          value_type - one of
-                         IDPOPT_STR  string constant
-                         IDPOPT_NUM  number
-                         IDPOPT_BIT  zero/one
-                         IDPOPT_I64  64bit number
-                         0 -> You should display a dialog to configure the processor module
-          value   - the actual value
-          idb_loaded - true if the ev_oldfile/ev_newfile events have been generated
-        Returns:
-           1 ok
-           0 not implemented
-           -1 error
-        """
-        if keyword == self.OPTION_KEY_OPERAND_SEPARATOR and value_type == ida_idp.IDPOPT_STR:
-          self.operand_separator = value
-          return 1
-        if keyword == self.OPTION_KEY_OPERAND_SPACES and value_type == ida_idp.IDPOPT_NUM:
-          self.operand_spaces = value
-          return 1
-        else:
-          return -1
-
-    def ev_gen_map_file(self, nlines, qfile):
-        """
-        Generate map file. If this function is absent then the kernel will create the map file.
-        This function returns number of lines in output file.
-        0 - not implemented, 1 - ok, -1 - write error
-        """
-        import ida_fpro
-        qfile = ida_fpro.qfile_t_from_fp(fp)
-        lines = ["Line 1\n", "Line 2\n!"]
-        ida_pro.int_pointer.frompointer(nlines).assign(len(lines))
-        for l in lines:
-            qfile.write(l)
-        return 1
-
-    def ev_create_func_frame(self, pfn):
-        """
-        Create a function frame for a newly created function.
-        Set up frame size, its attributes etc.
-        """
-        return 0
-
-    def ev_is_far_jump(self, icode):
-        """
-        Is indirect far jump or call instruction?
-        meaningful only if the processor has 'near' and 'far' reference types
-        """
-        return 0
-
-    def ev_is_align_insn(self, ea):
-        """
-        Is the instruction created only for alignment purposes?
-        Returns: number of bytes in the instruction
-        """
-        return 0
-
-    def ev_out_special_item(self, ctx, segtype):
-        """
-        Generate text representation of an item in a special segment
-        i.e. absolute symbols, externs, communal definitions etc.
-        Returns: 1-ok, 0-not implemented
-        """
-        return 0
-
-    def ev_get_frame_retsize(self, frsize, pfn):
-        """
-        Get size of function return address in bytes
-        If this function is absent, the kernel will assume
-             4 bytes for 32-bit function
-             2 bytes otherwise
-        """
-        ida_pro.int_pointer.frompointer(frsize).assign(2)
-        return 1
-
     def ev_is_switch(self, swi, insn):
         """
         Find 'switch' idiom at instruction 'insn'.
         Fills 'swi' structure with information
         """
-        if insn.itype != 101:
+        if insn.itype != OP_SWITCH:
             return 0
         swi.flags = SWI_CUSTOM
         swi.startea = insn.ea
@@ -1168,7 +1018,7 @@ class ysc_t(idaapi.processor_t):
         jumpea += 1
         branches = ida_bytes.get_byte(jumpea)
         jumpea += 1
-        for i in range(0, branches):
+        for _ in range(0, branches):
             match = ida_bytes.get_dword(jumpea)
             jumpea += 4
             target = ida_bytes.get_word(jumpea)
@@ -1176,424 +1026,6 @@ class ysc_t(idaapi.processor_t):
             add_cref(switch_instr, jumpea + target, fl_JF)
             idc.set_cmt(jumpea + target, "jumptable 0x{:x} case {}".format(switch_instr, match), 1)
         return 1
-
-    def ev_is_sp_based(self, mode, insn, op):
-        """
-        Check whether the operand is relative to stack pointer or frame pointer.
-        This function is used to determine how to output a stack variable
-        This function may be absent. If it is absent, then all operands
-        are sp based by default.
-        Define this function only if some stack references use frame pointer
-        instead of stack pointer.
-        returns flags:
-          OP_FP_BASED   operand is FP based
-          OP_SP_BASED   operand is SP based
-          OP_SP_ADD     operand value is added to the pointer
-          OP_SP_SUB     operand value is substracted from the pointer
-        """
-        ida_pro.int_pointer.frompointer(mode).assign(idaapi.OP_FP_BASED)
-        return 1
-
-    def ev_get_autocmt(self, insn):
-        """
-        Get instruction comment. 'insn' describes the instruction in question
-        @return: None or the comment string
-        """
-        return "comment for %d" % insn.itype
-
-    def ev_calc_step_over(self, target, ip):
-        ida_pro.ea_pointer.frompointer(target).assign(idaapi.BADADDR)
-        return 1
-
-    def ev_may_be_func(self, insn, state):
-        """
-        can a function start here?
-        the instruction is in 'insn'
-          arg: state -- autoanalysis phase
-            state == 0: creating functions
-                  == 1: creating chunks
-          returns: probability 0..100
-        """
-        return 0
-
-    def ev_str2reg(self, regname):
-        """
-        Convert a register name to a register number
-          args: regname
-          Returns: register number or -1 if not avail
-          The register number is the register index in the reg_names array
-          Most processor modules do not need to implement this callback
-          It is useful only if ph.reg_names[reg] does not provide
-          the correct register names
-        """
-        r = self.regname2index(regname)
-        if r < 0:
-            return 0
-        else:
-            return r + 1
-
-    def ev_is_sane_insn(self, insn, no_crefs):
-        """
-        is the instruction sane for the current file type?
-        args: no_crefs
-        1: the instruction has no code refs to it.
-           ida just tries to convert unexplored bytes
-           to an instruction (but there is no other
-           reason to convert them into an instruction)
-        0: the instruction is created because
-           of some coderef, user request or another
-           weighty reason.
-        The instruction is in 'insn'
-        returns: >=0-ok, <0-no, the instruction isn't
-        likely to appear in the program
-        """
-        return -1
-
-    def ev_func_bounds(self, code, func_ea, max_func_end_ea):
-        ida_pro.int_pointer.frompointer(code).assign(FIND_FUNC_OK)
-        return 1
-
-    def ev_init(self, idp_file):
-        return 0
-
-    def ev_out_label(self, ctx, label):
-        """
-        The kernel is going to generate an instruction label line
-        or a function header.
-        args:
-          ctx - output context
-          label - label to output
-        If returns value <0, then the kernel should not generate the label
-        """
-        return 0
-
-    def ev_rename(self, ea, new_name):
-        """
-        The kernel is going to rename a byte
-        args:
-          ea -
-          new_name -
-        If returns value <0, then the kernel should not rename it
-        """
-        return 0
-
-    def ev_may_show_sreg(self, ea):
-        """
-        The kernel wants to display the segment registers
-        in the messages window.
-        args:
-          ea
-        if this function returns <0
-        then the kernel will not show
-        the segment registers.
-        (assuming that the module have done it)
-        """
-        return 0
-
-    def ev_coagulate(self, start_ea):
-        """
-        Try to define some unexplored bytes
-        This notification will be called if the
-        kernel tried all possibilities and could
-        not find anything more useful than to
-        convert to array of bytes.
-        The module can help the kernel and convert
-        the bytes into something more useful.
-        args:
-          start_ea -
-        returns: number of converted bytes
-        """
-        return 0
-
-    def ev_is_call_insn(self, insn):
-        """
-        Is the instruction a "call"?
-        args
-          insn  - instruction
-        returns: 0-unknown, <0-no, 1-yes
-        """
-        if insn == 45:
-            return 1
-        return 0
-
-    def ev_is_ret_insn(self, insn, strict):
-        """
-        Is the instruction a "return"?
-        insn  - instruction
-        strict - 1: report only ret instructions
-                 0: include instructions like "leave"
-                    which begins the function epilog
-        returns: 0-unknown, <0-no, 1-yes
-        """
-        return 0
-
-    def ev_is_alloca_probe(self, ea):
-        """
-        Does the function at 'ea' behave as __alloca_probe?
-        args:
-          ea
-        returns: 1-yes, 0-false
-        """
-        return 0
-
-    def ev_gen_src_file_lnnum(self, ctx, filename, lnnum):
-        """
-        Callback: generate analog of
-        #line "file.c" 123
-        directive.
-        args:
-          ctx   - output context
-          file  - source file (may be NULL)
-          lnnum - line number
-        returns: 1-directive has been generated
-        """
-        return 0
-
-    def ev_is_indirect_jump(self, insn):
-        """
-        Callback: determine if instruction is an indrect jump
-        If CF_JUMP bit cannot describe all jump types
-        jumps, please define this callback.
-        input: insn structure contains the current instruction
-        returns: 0-use CF_JUMP, 1-no, 2-yes
-        """
-        return 0
-
-    def ev_validate_flirt_func(self, ea, funcname):
-        """
-        flirt has recognized a library function
-        this callback can be used by a plugin or proc module
-        to intercept it and validate such a function
-        args:
-          start_ea
-          funcname
-        returns: -1-do not create a function,
-                  0-function is validated
-        """
-        return 0
-
-    def ev_set_proc_options(self, options, confidence):
-        """
-        called if the user specified an option string in the command line:
-        -p<processor name>:<options>
-        can be used for e.g. setting a processor subtype
-        also called if option string is passed to set_processor_type()
-        and IDC's set_processor_type()
-        args:
-          options
-          confidence - 0: loader's suggestion,
-                       1: user's decision
-        returns: <0 - bad option string
-        """
-        return 0
-
-    def ev_creating_segm(self, s):
-        return 0
-
-    def ev_auto_queue_empty(self, atype):
-        return 0
-
-    def ev_gen_regvar_def(self, ctx, v):
-        return 0
-
-    def ev_is_basic_block_end(self, insn, call_insn_stops_block):
-        """
-        Is the current instruction end of a basic block?
-        This function should be defined for processors
-        with delayed jump slots. The current instruction
-        is stored in 'insn'
-        args:
-          call_insn_stops_block
-          returns: 0-unknown, -1-no, 1-yes
-        """
-        
-        return insn.itype == 0x2D
-
-    def ev_moving_segm(self, segment, to, flags):
-        """
-        May the kernel move the segment?
-        returns: 0-yes, <0-the kernel should stop
-        """
-        return 0
-
-    def ev_segm_moved(self, from_ea, to_ea, size, changed_netdelta):
-        """
-        A segment is moved
-        """
-        return 0
-
-    def ev_verify_noreturn(self, pfn):
-        """
-        The kernel wants to set 'noreturn' flags for a function
-        Returns: 0-ok, <0-do not set 'noreturn' flag
-        """
-        return 0
-
-    def ev_treat_hindering_item(self, hindering_item_ea, new_item_flags, new_item_ea, new_item_length):
-        """
-        An item hinders creation of another item
-        args:
-          hindering_item_ea
-          new_item_flags
-          new_item_ea
-          new_item_length
-        Returns: 0-no reaction, <0-the kernel may delete the hindering item
-        """
-        return 0
-
-    def ev_coagulate_dref(self, from_ea, to_ea, may_define, code_ea):
-        """
-        data reference is being analyzed
-        args:
-          from_ea, to_ea, may_define, code_ea
-        plugin may correct code_ea (e.g. for thumb mode refs, we clear the last bit)
-        Returns: new code_ea or -1 - cancel dref analysis
-        """
-        if False: # some condition
-            ida_pro.ea_pointer.frompointer(code_ea).assign(0x1337)
-        return 0
-
-    #
-    # IDB_Hooks callbacks
-    #
-
-    def savebase(self):
-        """The database is being saved. Processor module should save its local data"""
-        return 0
-
-    def closebase(self):
-        """
-        The database will be closed now
-        """
-        return 0
-
-    def idasgn_loaded(self, short_sig_name):
-        """
-        FLIRT signature have been loaded for normal processing
-        (not for recognition of startup sequences)
-        args:
-          short_sig_name
-        """
-        return 0
-
-    def auto_empty(self):
-        """
-        Info: all analysis queues are empty.
-        This callback is called once when the
-        initial analysis is finished. If the queue is
-        not empty upon the return from this callback,
-        it will be called later again
-        """
-        return 0
-
-    def kernel_config_loaded(self, pass_number):
-        """
-        This callback is called when ida.cfg is parsed
-        """
-        return 0
-
-    def auto_empty_finally(self):
-        """
-        Info: all analysis queues are empty definitively
-        """
-        return 0
-
-    def determined_main(self, main_ea):
-        """
-        The main() function has been determined
-        """
-        return 0
-
-    def sgr_changed(self, start_ea, end_ea, regnum, value, old_value, tag):
-        return 0
-
-    def compiler_changed(self, adjust_inf_fields):
-        return 0
-
-    def make_code(self, insn):
-        """
-        An instruction is being created
-        args:
-          insn
-        returns: 0-ok, <0-the kernel should stop
-        """
-        return 0
-
-    def make_data(self, ea, flags, tid, size):
-        """
-        A data item is being created
-        args:
-          ea
-          flags
-          tid
-          size
-        returns: 0-ok, <0-the kernel should stop
-        """
-        return 0
-
-    def notify_verify_sp(self, pfn):
-        """
-        All function instructions have been analyzed
-        Now the processor module can analyze the stack pointer
-        for the whole function
-        Returns: 0-ok, <0-bad stack pointer
-        """
-        return 0
-
-    def renamed(self, ea, new_name, is_local_name):
-        """
-        The kernel has renamed a byte
-        args:
-          ea
-          new_name
-          is_local_name
-        Returns: nothing. See also the 'rename' event
-        """
-        return 0
-
-    def set_func_start(self, pfn, new_ea):
-        """
-        Function chunk start address will be changed
-        args:
-          pfn
-          new_ea
-        Returns: 0-ok,<0-do not change
-        """
-        return 0
-
-    def set_func_end(self, pfn, new_end_ea):
-        """
-        Function chunk end address will be changed
-        args:
-          pfn
-          new_end_ea
-        Returns: 0-ok,<0-do not change
-        """
-        return 0
-
-    def func_added(self, pfn):
-        """
-        The kernel has added a function.
-        @param pfn: function
-        """
-        return 0
-
-    def deleting_func(self, pfn):
-        """
-        The kernel is about to delete a function
-        @param func: function
-        """
-        return 0
-
-    def translate(self, base, offset):
-        """
-        Translation function for offsets
-        Currently used in the offset display functions
-        to calculate the referenced address
-        Returns: ea_t
-        """
-        return BADADDR
-
 # ----------------------------------------------------------------------
 # Every processor module script must provide this function.
 # It should return a new instance of a class derived from idaapi.processor_t
