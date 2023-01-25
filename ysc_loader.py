@@ -18,9 +18,9 @@ def accept_file(f, n):
     Returns:
       Union[str, int]: str if supported, 0 if unsupported.
     '''
-    f.seek(0)
-    if f.read(2) == b'\xA8\xB3':
-        return 'RAGE Script'
+
+    if 'ysc' in f.filename(): 
+      return "YSC File"
 
     return 0
 
@@ -79,10 +79,6 @@ def rotate_left(value, count):
     count &= 63
     return ctypes.c_uint64(value << count).value | ctypes.c_uint64(value >> 64-count).value
 
-scrPageShift = 14
-scrPageSize = ctypes.c_uint32(1 << scrPageShift).value
-scrPageMask = scrPageSize - 1
-
 def load_file(f, neflags, format):
     '''
     load the given file into the current IDA Pro database.
@@ -93,20 +89,9 @@ def load_file(f, neflags, format):
     Returns:
       int: 1 on success, 0 on failure
     '''
-
-    header = load_script_header(f)
-
-    f.seek(0x0, os.SEEK_END)
-    flen = f.tell()
-    f.seek(0x0)
-    buf = f.read(flen)
-
     idaapi.set_processor_type('ysc', 3)
-
+    header = load_script_header(f)
     ida_segment.add_segm(0, 0, header.opcode_size, "CODE", "CODE", 0)
-
-    f.seek(0)
-    
     page_count = int(header.opcode_size / PAGE_SIZE) + 1
     offset = 0
     for i in range(0, page_count):
@@ -118,14 +103,14 @@ def load_file(f, neflags, format):
       offset += page_size
 
     ida_segment.add_segm(0, header.opcode_size, header.opcode_size + header.native_size * 8, "NATIVES", "DATA", 0)
-    f.file2base(header.natives, header.opcode_size, header.opcode_size + header.native_size * 8, 0)
+    f.seek(header.natives)
     for i in range(0, header.native_size):
-      rotated_native = rotate_left(ctypes.c_uint64(ida_bytes.get_qword(header.opcode_size + i * 8)).value, i + header.opcode_size)
-      ida_bytes.patch_qword(header.opcode_size + i * 8, rotated_native)
+      native = rotate_left(ctypes.c_uint64(int.from_bytes(f.read(8), 'little')).value, i + header.opcode_size)
+      ida_bytes.add_qword(header.opcode_size + i * 8, native)
       ida_bytes.create_qword(header.opcode_size + i * 8, 8)
-      idaapi.set_name(header.opcode_size + i * 8, "native_{:X}".format(rotated_native), idaapi.SN_FORCE)
+      idaapi.set_name(header.opcode_size + i * 8, "native_{:X}".format(native), idaapi.SN_FORCE)
+    
     ida_segment.add_segm(0, header.opcode_size + header.native_size * 8, header.opcode_size + header.native_size * 8 + header.string_heaps_size, "STRINGS", "DATA", 0)
-
     page_count = int(header.string_heaps_size / PAGE_SIZE) + 1
     offset = header.opcode_size + header.native_size * 8
     for i in range(0, page_count):
