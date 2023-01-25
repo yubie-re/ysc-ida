@@ -1,5 +1,4 @@
 # ----------------------------------------------------------------------
-# Processor module template script
 # (c) Hex-Rays
 import sys
 import idaapi
