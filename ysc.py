@@ -847,6 +847,16 @@ class ysc_t(idaapi.processor_t):
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
+        if insn.itype == 102: # OP_STRING
+            prev = insn_t()
+            decode_prev_insn(prev, insn.ea)
+            if prev.Op1.type == o_imm:
+                insn.Op1.type = o_mem
+                insn.Op1.dtype = dt_qword
+                for s in idautils.Segments():
+                    if idc.get_segm_name(s) == "STRINGS":
+                        string_segment = idc.get_segm_start(s)
+                insn.Op1.addr = string_segment + prev.Op1.value
         return insn.size
 
     def ev_emu_insn(self, insn):
