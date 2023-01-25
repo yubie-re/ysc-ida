@@ -2,7 +2,10 @@ import os
 import struct
 import idc
 import idaapi
+import ida_segment
+import ida_bytes
 from dataclasses import dataclass
+import ctypes
 
 PAGE_SIZE = 0x4000
 
@@ -54,6 +57,7 @@ def load_script_header(f):
     statics = int.from_bytes(f.read(8), "little") & 0xFFFFFF
     scr_globals = int.from_bytes(f.read(8), "little") & 0xFFFFFF
     natives = int.from_bytes(f.read(8), "little") & 0xFFFFFF
+    print(natives)
     f.read(16)
     hash_code = int.from_bytes(f.read(4), "little")
     ref_count = int.from_bytes(f.read(4), "little")
@@ -70,6 +74,14 @@ def get_page_size(page_index, page_count, total_size):
     if page_index == max_page:
       return total_size % PAGE_SIZE
     return PAGE_SIZE
+
+def rotate_left(value, count):
+    count &= 63
+    return ctypes.c_uint64(value << count).value | ctypes.c_uint64(value >> 64-count).value
+
+scrPageShift = 14
+scrPageSize = ctypes.c_uint32(1 << scrPageShift).value
+scrPageMask = scrPageSize - 1
 
 def load_file(f, neflags, format):
     '''
@@ -91,19 +103,35 @@ def load_file(f, neflags, format):
 
     idaapi.set_processor_type('ysc', 3)
 
-    idc.AddSeg(0, header.opcode_size, 0, 1, 0, 0)
+    ida_segment.add_segm(0, 0, header.opcode_size, "CODE", "CODE", 0)
 
     f.seek(0)
     
     page_count = int(header.opcode_size / PAGE_SIZE) + 1
     offset = 0
-    f.seek(header.table)
     for i in range(0, page_count):
+      f.seek(header.table)
+      f.read(i * 8)
+      #f.seek(int.from_bytes(f.read(8), 'little') & 0xFFFFFF)
       page_size = get_page_size(i, page_count, header.opcode_size)
       f.file2base(int.from_bytes(f.read(8), 'little') & 0xFFFFFF, offset, offset+page_size, 0)
       offset += page_size
 
+    ida_segment.add_segm(0, header.opcode_size, header.opcode_size + header.native_size * 8, "NATIVES", "DATA", 0)
+    f.file2base(header.natives, header.opcode_size, header.opcode_size + header.native_size * 8, 0)
+    for i in range(0, header.native_size):
+      rotated_native = rotate_left(ctypes.c_uint64(ida_bytes.get_qword(header.opcode_size + i * 8)).value, i + header.opcode_size)
+      ida_bytes.patch_qword(header.opcode_size + i * 8, rotated_native)
+      idaapi.set_name(header.opcode_size + i * 8, "n_{:X}".format(rotated_native), idaapi.SN_FORCE)
+    ida_segment.add_segm(0, header.opcode_size + header.native_size * 8, header.opcode_size + header.native_size * 8 + header.string_heaps_size, "STRINGS", "DATA", 0)
 
-    idc.AddSeg(0, header.opcode_size, 0, 1, 0, 0)
+    page_count = int(header.string_heaps_size / PAGE_SIZE) + 1
+    offset = header.opcode_size + header.native_size * 8
+    for i in range(0, page_count):
+      f.seek(header.string_heaps)
+      f.read(i * 8)
+      page_size = get_page_size(i, page_count, header.string_heaps_size)
+      f.file2base(int.from_bytes(f.read(8), 'little') & 0xFFFFFF, offset, offset+page_size, 0)
+      offset += page_size
     idaapi.add_entry(0, 0, "start", 1)
     return 1

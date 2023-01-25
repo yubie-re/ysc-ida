@@ -7,6 +7,7 @@ from idaapi import *
 import ida_pro
 import ida_bytes
 import idc
+import idautils
 import ctypes
 
 if sys.version_info.major < 3:
@@ -545,9 +546,14 @@ class ysc_t(idaapi.processor_t):
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_byte
             insn.Op1.value = insn.get_next_byte()
-            insn.Op2.type = o_imm
-            insn.Op2.dtype = dt_word
-            insn.Op2.value = (insn.get_next_byte() << 8) | (insn.get_next_byte())
+            insn.Op2.type = o_mem
+            insn.Op2.dtype = dt_qword
+            for s in idautils.Segments():
+                if idc.get_segm_name(s) == "NATIVES":
+                    native_segment = idc.get_segm_start(s)
+            imm = insn.get_next_byte() << 8
+            imm |= insn.get_next_byte()
+            insn.Op2.addr = native_segment + imm * 8
         if insn.itype == 45: #OP_ENTER
             # insn.size = 5
             insn.Op1.type = o_imm
@@ -849,6 +855,8 @@ class ysc_t(idaapi.processor_t):
             add_cref(insn.ea, insn.ea + insn.size + ctypes.c_short(insn.Op1.value).value, dr_O)
         elif insn.itype == 93: # call
             add_cref(insn.ea, insn.Op1.addr, fl_CF)
+        elif insn.itype == 44:
+            add_dref(insn.ea, insn.Op2.addr, dr_R)
         if flow: # ret
             add_cref(insn.ea, insn.ea + insn.size, fl_F)
 
@@ -1073,7 +1081,6 @@ class ysc_t(idaapi.processor_t):
         switch_instr = jumpea
         jumpea += 1
         branches = ida_bytes.get_byte(jumpea)
-        print("{:x} {}".format(jumpea - 1, branches))
         jumpea += 1
         for i in range(0, branches):
             match = ida_bytes.get_dword(jumpea)
