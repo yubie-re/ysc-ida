@@ -122,7 +122,8 @@ def load_file(f, neflags, format):
     for i in range(0, header.native_size):
       rotated_native = rotate_left(ctypes.c_uint64(ida_bytes.get_qword(header.opcode_size + i * 8)).value, i + header.opcode_size)
       ida_bytes.patch_qword(header.opcode_size + i * 8, rotated_native)
-      idaapi.set_name(header.opcode_size + i * 8, "n_{:X}".format(rotated_native), idaapi.SN_FORCE)
+      ida_bytes.create_qword(header.opcode_size + i * 8, 8)
+      idaapi.set_name(header.opcode_size + i * 8, "native_{:X}".format(rotated_native), idaapi.SN_FORCE)
     ida_segment.add_segm(0, header.opcode_size + header.native_size * 8, header.opcode_size + header.native_size * 8 + header.string_heaps_size, "STRINGS", "DATA", 0)
 
     page_count = int(header.string_heaps_size / PAGE_SIZE) + 1

@@ -856,7 +856,81 @@ class ysc_t(idaapi.processor_t):
                 for s in idautils.Segments():
                     if idc.get_segm_name(s) == "STRINGS":
                         string_segment = idc.get_segm_start(s)
+                
                 insn.Op1.addr = string_segment + prev.Op1.value
+                idc.SetType(insn.Op1.addr, "char[]") # so all strings are recognized
+        if insn.itype == 112: # OP_PUSH_CONST_M1
+            insn.Op1.type = o_imm
+            insn.Op1.dtype = dt_dword
+            insn.Op1.value = -1
+        if insn.itype == 113: # OP_PUSH_CONST_0
+            insn.Op1.type = o_imm
+            insn.Op1.dtype = dt_dword
+            insn.Op1.value = 0
+        if insn.itype == 114: # OP_PUSH_CONST_1
+            insn.Op1.type = o_imm
+            insn.Op1.dtype = dt_dword
+            insn.Op1.value = 1
+        if insn.itype == 115: # OP_PUSH_CONST_2
+            insn.Op1.type = o_imm
+            insn.Op1.dtype = dt_dword
+            insn.Op1.value = 2
+        if insn.itype == 116: # OP_PUSH_CONST_3
+            insn.Op1.type = o_imm
+            insn.Op1.dtype = dt_dword
+            insn.Op1.value = 3
+        if insn.itype == 117: # OP_PUSH_CONST_4
+            insn.Op1.type = o_imm
+            insn.Op1.dtype = dt_dword
+            insn.Op1.value = 4
+        if insn.itype == 118: # OP_PUSH_CONST_5
+            insn.Op1.type = o_imm
+            insn.Op1.dtype = dt_dword
+            insn.Op1.value = 5
+        if insn.itype == 119: # OP_PUSH_CONST_6
+            insn.Op1.type = o_imm
+            insn.Op1.dtype = dt_dword
+            insn.Op1.value = 6
+        if insn.itype == 120: # OP_PUSH_CONST_7
+            insn.Op1.type = o_imm
+            insn.Op1.dtype = dt_dword
+            insn.Op1.value = 7
+        if insn.itype == 121: # OP_PUSH_CONST_FM1
+            insn.Op1.type = o_imm
+            insn.Op1.dtype = dt_float
+            insn.Op1.value = 0xbf800000
+        if insn.itype == 122: # OP_PUSH_CONST_F0
+            insn.Op1.type = o_imm
+            insn.Op1.dtype = dt_float
+            insn.Op1.value = 0x00000000
+        if insn.itype == 123: # OP_PUSH_CONST_F1
+            insn.Op1.type = o_imm
+            insn.Op1.dtype = dt_float
+            insn.Op1.value = 0x3f800000
+        if insn.itype == 124: # OP_PUSH_CONST_F2
+            insn.Op1.type = o_imm
+            insn.Op1.dtype = dt_float
+            insn.Op1.value = 0x40000000
+        if insn.itype == 125: # OP_PUSH_CONST_F3
+            insn.Op1.type = o_imm
+            insn.Op1.dtype = dt_float
+            insn.Op1.value = 0x40400000
+        if insn.itype == 126: # OP_PUSH_CONST_F4
+            insn.Op1.type = o_imm
+            insn.Op1.dtype = dt_float
+            insn.Op1.value = 0x40800000
+        if insn.itype == 127: # OP_PUSH_CONST_F5
+            insn.Op1.type = o_imm
+            insn.Op1.dtype = dt_float
+            insn.Op1.value = 0x40a00000
+        if insn.itype == 128: # OP_PUSH_CONST_F6
+            insn.Op1.type = o_imm
+            insn.Op1.dtype = dt_float
+            insn.Op1.value = 0x40c00000
+        if insn.itype == 129: # OP_PUSH_CONST_F7
+            insn.Op1.type = o_imm
+            insn.Op1.dtype = dt_float
+            insn.Op1.value = 0x40e00000
         return insn.size
 
     def ev_emu_insn(self, insn):
@@ -867,7 +941,9 @@ class ysc_t(idaapi.processor_t):
             add_cref(insn.ea, insn.Op1.addr, fl_CF)
         elif insn.itype == 44:
             add_dref(insn.ea, insn.Op2.addr, dr_R)
-        if flow: # ret
+        elif insn.itype == 102:
+            add_dref(insn.ea, insn.Op1.addr, dr_R)
+        if flow and insn.itype != 85: # ret
             add_cref(insn.ea, insn.ea + insn.size, fl_F)
 
         return True
@@ -1098,7 +1174,7 @@ class ysc_t(idaapi.processor_t):
             target = ida_bytes.get_word(jumpea)
             jumpea += 2
             add_cref(switch_instr, jumpea + target, fl_JF)
-            idc.set_cmt(jumpea + target, "case {} (SWITCH @0x{:x})".format(match, switch_instr), 1)
+            idc.set_cmt(jumpea + target, "jumptable 0x{:x} case {}".format(switch_instr, match), 1)
         return 1
 
     def ev_is_sp_based(self, mode, insn, op):
