@@ -6,23 +6,14 @@ import ida_segment
 import ida_bytes
 from dataclasses import dataclass
 import ctypes
+import os
 
 PAGE_SIZE = 0x4000
 
 def accept_file(f, n):
-    '''
-    return the name of the format, if it looks like a WebAssembly module, or 0 on unsupported.
-    Args:
-      f (file): the file to inspect.
-      n (any): unused.
-    Returns:
-      Union[str, int]: str if supported, 0 if unsupported.
-    '''
-
-    if 'ysc' in f.filename(): 
-      return "YSC File"
-
-    return 0
+  if 'ysc' in os.path.basename(n):
+    return 'YSC Script Loader'
+  return 0
 
 @dataclass
 class script_header:
