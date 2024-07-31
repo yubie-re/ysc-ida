@@ -835,6 +835,7 @@ class ysc_t(idaapi.processor_t):
             insn.Op1.type = o_mem
             insn.Op1.dtype = dt_dword
             insn.Op1.addr = (insn.get_next_dword()) & 0xFFFFFF
+            insn.Op1.offb = 1
             insn.size = 4
         elif insn.itype == OP_STATIC_U24:
             insn.Op1.type = o_imm
@@ -856,16 +857,19 @@ class ysc_t(idaapi.processor_t):
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_dword
             insn.Op1.value = (insn.get_next_dword()) & 0xFFFFFF
+            insn.Op1.offb = 1
             insn.size = 4
         elif insn.itype == OP_GLOBAL_U24_LOAD:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_dword
             insn.Op1.value = (insn.get_next_dword()) & 0xFFFFFF
+            insn.Op1.offb = 1
             insn.size = 4
         elif insn.itype == OP_GLOBAL_U24_STORE:
             insn.Op1.type = o_imm
             insn.Op1.dtype = dt_dword
             insn.Op1.value = (insn.get_next_dword()) & 0xFFFFFF
+            insn.Op1.offb = 1
             insn.size = 4
         elif insn.itype == OP_PUSH_CONST_U24:
             insn.Op1.type = o_imm
