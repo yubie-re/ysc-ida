@@ -110,5 +110,5 @@ def load_file(f, neflags, format):
       page_size = get_page_size(i, page_count, header.string_heaps_size)
       f.file2base(int.from_bytes(f.read(8), 'little') & 0xFFFFFF, offset, offset+page_size, 0)
       offset += page_size
-    idaapi.add_entry(0, 0, "start", 1)
+    idaapi.add_entry(0, 0, "entry", 1)
     return 1

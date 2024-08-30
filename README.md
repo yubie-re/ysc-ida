@@ -1,5 +1,6 @@
 # ysc-ida
-Loader/Processor to dissassemble YSC scripts in IDA 7/8
+Hex-Rays IDA processor module & loader to dissassemble Grand Theft Auto V YSC scripts in IDA 7/8.
+Requires a decompressed YSC file from GTA5.
 ![alt text](preview.png)
 ## Usage
 1. Put ysc.py into <IDA_DIR>/procs/
